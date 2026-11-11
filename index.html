@@ -3,17 +3,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#123b2c">
 <title>Biblioteca Abierta</title>
 
-<!-- Lector EPUB -->
 <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -31,22 +28,18 @@ header {
 header h1 {
   margin: 0;
   font-family: Georgia, serif;
-  font-size: 29px;
 }
 
-header p {
-  color: #e4d4a5;
-  margin-bottom: 0;
-}
+header p { color: #e4d4a5; }
 
 .hero {
-  background: linear-gradient(120deg, #174b36, #28694c);
+  background: linear-gradient(120deg,#174b36,#28694c);
   color: white;
   padding: 38px 6%;
 }
 
 .hero h2 {
-  font-family: Georgia, serif;
+  font-family: Georgia,serif;
   font-size: 30px;
   margin: 0 0 10px;
 }
@@ -73,15 +66,8 @@ input, select, textarea {
   max-width: 100%;
 }
 
-#busqueda {
-  flex: 2;
-  min-width: 180px;
-}
-
-#filtroCategoria {
-  flex: 1;
-  min-width: 145px;
-}
+#busqueda { flex: 2; min-width: 180px; }
+#filtroCategoria { flex: 1; min-width: 145px; }
 
 button {
   border: 0;
@@ -99,7 +85,7 @@ button {
 
 .catalogo {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
   gap: 20px;
 }
 
@@ -120,9 +106,9 @@ button {
   justify-content: center;
   text-align: center;
   color: white;
-  font-family: Georgia, serif;
+  font-family: Georgia,serif;
   font-size: 23px;
-  background: linear-gradient(145deg, #174b36, #bd9847);
+  background: linear-gradient(145deg,#174b36,#bd9847);
   background-size: cover;
   background-position: center;
 }
@@ -135,20 +121,18 @@ button {
 }
 
 .libro-info h3 {
-  font-family: Georgia, serif;
+  font-family: Georgia,serif;
   margin: 0 0 8px;
 }
 
 .autor {
   color: #8b7446;
   font-size: 14px;
-  margin: 0 0 7px;
 }
 
 .cat-tag {
   font-size: 12px;
   color: #555;
-  margin-bottom: 8px;
   font-weight: bold;
 }
 
@@ -192,10 +176,6 @@ button {
   box-shadow: 0 4px 15px #00000012;
 }
 
-#formulario h3 {
-  margin-top: 0;
-}
-
 #formulario input,
 #formulario select,
 #formulario textarea {
@@ -228,8 +208,6 @@ footer {
   margin-top: 40px;
 }
 
-/* Ventana del lector */
-
 #lector {
   display: none;
   position: fixed;
@@ -256,7 +234,6 @@ footer {
 .lector-cabecera button {
   background: #bd9847;
   color: #172c22;
-  flex-shrink: 0;
 }
 
 .lector-controles {
@@ -294,13 +271,11 @@ footer {
   text-align: center;
 }
 
-@media(max-width: 500px) {
-  .hero h2 {
-    font-size: 25px;
-  }
+@media(max-width:500px) {
+  .hero h2 { font-size: 25px; }
 
   .catalogo {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2,minmax(0,1fr));
     gap: 12px;
   }
 
@@ -310,13 +285,9 @@ footer {
     padding: 12px;
   }
 
-  .libro-info {
-    padding: 12px;
-  }
+  .libro-info { padding: 12px; }
 
-  .libro-info h3 {
-    font-size: 16px;
-  }
+  .libro-info h3 { font-size: 16px; }
 
   .botones-libro button {
     width: 100%;
@@ -324,10 +295,8 @@ footer {
   }
 }
 
-@media(max-width: 340px) {
-  .catalogo {
-    grid-template-columns: 1fr;
-  }
+@media(max-width:340px) {
+  .catalogo { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -347,12 +316,9 @@ footer {
 <main>
 
   <div class="controls">
-    <input
-      id="busqueda"
-      type="search"
+    <input id="busqueda" type="search"
       placeholder="Buscar por título o autor..."
-      oninput="mostrarLibros()"
-    >
+      oninput="mostrarLibros()">
 
     <select id="filtroCategoria" onchange="mostrarLibros()">
       <option value="">Todas las categorías</option>
@@ -396,15 +362,14 @@ footer {
       <option>PDF</option>
     </select>
 
-    <label for="archivoUrl">Nombre o ruta del archivo</label>
+    <label for="archivoUrl">Nombre del archivo en GitHub</label>
     <input id="archivoUrl" placeholder="Ejemplo: libro.epub">
 
-    <label for="imagen">Portada (opcional)</label>
+    <label for="imagen">Portada opcional</label>
     <input id="imagen" type="file" accept="image/*">
 
     <label for="descripcion">Descripción</label>
-    <textarea id="descripcion" rows="3"
-      placeholder="Descripción del libro"></textarea>
+    <textarea id="descripcion" rows="3"></textarea>
 
     <button class="save-button" onclick="guardarLibro()">
       Guardar libro
@@ -419,9 +384,8 @@ footer {
   <div class="catalogo" id="catalogo"></div>
 
   <p class="aviso">
-    Biblioteca Abierta permite consultar y descargar libros disponibles.
-    Comparte únicamente obras de dominio público, propias o cuya
-    distribución tengas autorizada.
+    Comparte únicamente libros propios, de dominio público
+    o cuya distribución tengas autorizada.
   </p>
 
 </main>
@@ -430,9 +394,8 @@ footer {
   Biblioteca Abierta · Un espacio para los lectores
 </footer>
 
-<!-- Ventana del lector -->
-
 <section id="lector">
+
   <div class="lector-cabecera">
     <strong id="tituloLector">Leyendo libro</strong>
     <button onclick="cerrarLector()">✕ Cerrar</button>
@@ -445,33 +408,33 @@ footer {
 
   <div id="visorEpub"></div>
   <iframe id="visorPdf" title="Lector PDF"></iframe>
-
   <div id="mensajeLector"></div>
+
 </section>
 
 <script>
 const ARCHIVO_DIABLO =
-  "El_Diablo_Ilustrado_El_Diablo_Ilustrado_Ilustrado,_El_Diablo_.epub";
+"El_Diablo_Ilustrado_El_Diablo_Ilustrado_Ilustrado,_El_Diablo_.epub";
 
 const librosIniciales = [
   {
-    id: 1,
+    id: "diablo-ilustrado",
     titulo: "El Diablo Ilustrado",
     autor: "Anónimo / Por confirmar",
     categoria: "Otros",
     formato: "EPUB",
     archivoUrl: ARCHIVO_DIABLO,
-    descripcion: "Libro disponible en formato EPUB.",
+    descripcion: "Libro disponible para lectura y descarga en formato EPUB.",
     portadaUrl: ""
   },
   {
-    id: 2,
+    id: "orgullo-prejuicio",
     titulo: "Orgullo y prejuicio",
     autor: "Jane Austen",
     categoria: "Romance",
     formato: "PDF",
     archivoUrl: "",
-    descripcion: "Clásico de la literatura. Añade el archivo PDF para habilitar su lectura y descarga.",
+    descripcion: "Ficha de ejemplo. El archivo todavía no está disponible.",
     portadaUrl: ""
   }
 ];
@@ -480,30 +443,41 @@ let libros = [];
 let bookInstance = null;
 let rendition = null;
 
+/* CARGAR Y RECUPERAR LOS LIBROS */
+
 function cargarLibros() {
   try {
     const guardados = localStorage.getItem("bibliotecaAbiertaLibros");
     const anteriores = guardados ? JSON.parse(guardados) : [];
 
-    if (!Array.isArray(anteriores)) {
-      libros = [...librosIniciales];
-    } else {
-      libros = [...anteriores];
+    libros = Array.isArray(anteriores) ? anteriores : [];
 
-      // Incorpora los libros iniciales que todavía no estén guardados.
-      librosIniciales.forEach(inicial => {
-        const existe = libros.some(libro =>
-          Number(libro.id) === Number(inicial.id) ||
-          libro.archivoUrl === inicial.archivoUrl
-        );
+    // Incorpora El Diablo Ilustrado aunque exista
+    // un catálogo antiguo con otros identificadores.
+    librosIniciales.forEach(inicial => {
+      const existe = libros.find(libro =>
+        String(libro.titulo || "").trim().toLowerCase() ===
+        inicial.titulo.toLowerCase()
+      );
 
-        if (!existe) libros.push(inicial);
-      });
-    }
+      if (existe) {
+        // Actualiza la ruta del EPUB sin perder los demás datos.
+        existe.archivoUrl = inicial.archivoUrl;
+        existe.formato = inicial.formato;
+        existe.id = inicial.id;
+      } else {
+        libros.push({...inicial});
+      }
+    });
+
   } catch (error) {
-    libros = [...librosIniciales];
+    libros = librosIniciales.map(libro => ({...libro}));
   }
+
+  guardarDatos();
 }
+
+/* GUARDAR */
 
 function guardarDatos() {
   try {
@@ -512,9 +486,11 @@ function guardarDatos() {
       JSON.stringify(libros)
     );
   } catch (error) {
-    alert("No se pudieron guardar los cambios en este navegador.");
+    console.error("No se pudieron guardar los libros", error);
   }
 }
+
+/* MOSTRAR CATÁLOGO */
 
 function mostrarLibros() {
   const catalogo = document.getElementById("catalogo");
@@ -528,11 +504,10 @@ function mostrarLibros() {
   const encontrados = libros.filter(libro => {
     const titulo = String(libro.titulo || "").toLowerCase();
     const autor = String(libro.autor || "").toLowerCase();
-    const categoria = libro.categoria || "";
 
     return (
       (titulo.includes(busqueda) || autor.includes(busqueda)) &&
-      (!filtro || categoria === filtro)
+      (!filtro || libro.categoria === filtro)
     );
   });
 
@@ -551,7 +526,6 @@ function mostrarLibros() {
     if (libro.portadaUrl) {
       portada.style.backgroundImage =
         `url("${libro.portadaUrl}")`;
-      portada.textContent = "";
     } else {
       portada.textContent = libro.titulo;
     }
@@ -570,7 +544,7 @@ function mostrarLibros() {
     categoria.className = "cat-tag";
     categoria.textContent =
       "Categoría: " + (libro.categoria || "Otros") +
-      " · " + (libro.formato || "Libro");
+      " · " + (libro.formato || "");
 
     const descripcion = document.createElement("p");
     descripcion.className = "descripcion";
@@ -596,28 +570,21 @@ function mostrarLibros() {
     eliminar.textContent = "Eliminar ficha";
     eliminar.onclick = () => eliminarLibro(libro.id);
 
-    info.append(
-      titulo,
-      autor,
-      categoria,
-      descripcion,
-      botones,
-      eliminar
-    );
-
+    info.append(titulo, autor, categoria, descripcion, botones, eliminar);
     tarjeta.append(portada, info);
     catalogo.appendChild(tarjeta);
   });
 }
 
-function obtenerUrl(libro) {
-  if (!libro.archivoUrl || libro.archivoUrl === "#") {
-    return "";
-  }
+/* RUTA DEL ARCHIVO */
 
-  // Se conserva la ruta relativa del archivo publicado en GitHub.
+function obtenerUrl(libro) {
+  if (!libro.archivoUrl || libro.archivoUrl === "#") return "";
+
   return libro.archivoUrl.trim();
 }
+
+/* DESCARGAR */
 
 function descargarLibro(libro) {
   const url = obtenerUrl(libro);
@@ -636,7 +603,9 @@ function descargarLibro(libro) {
   enlace.remove();
 }
 
-async function abrirLibro(libro) {
+/* ABRIR LECTOR */
+
+function abrirLibro(libro) {
   const url = obtenerUrl(libro);
 
   if (!url) {
@@ -649,22 +618,19 @@ async function abrirLibro(libro) {
   document.getElementById("lector").style.display = "flex";
   document.getElementById("tituloLector").textContent = libro.titulo;
 
-  const formato = String(libro.formato || "")
-    .toUpperCase();
+  const formato = String(libro.formato || "").toUpperCase();
+  const extension = url.split("?")[0].toLowerCase();
 
-  if (formato === "EPUB" || url.toLowerCase().split("?")[0].endsWith(".epub")) {
+  if (formato === "EPUB" || extension.endsWith(".epub")) {
     abrirEpub(url);
-  } else if (
-    formato === "PDF" ||
-    url.toLowerCase().split("?")[0].endsWith(".pdf")
-  ) {
+  } else if (formato === "PDF" || extension.endsWith(".pdf")) {
     abrirPdf(url);
   } else {
-    mostrarMensaje(
-      "Formato no reconocido. Indica EPUB o PDF en la ficha del libro."
-    );
+    mostrarMensaje("El formato del archivo no es compatible.");
   }
 }
+
+/* LECTOR EPUB */
 
 function abrirEpub(url) {
   const visor = document.getElementById("visorEpub");
@@ -672,9 +638,7 @@ function abrirEpub(url) {
   document.getElementById("controlesEpub").style.display = "flex";
 
   if (typeof ePub !== "function") {
-    mostrarMensaje(
-      "No se pudo cargar el lector EPUB. Comprueba tu conexión a Internet."
-    );
+    mostrarMensaje("No se pudo cargar el lector EPUB. Comprueba Internet.");
     return;
   }
 
@@ -690,28 +654,34 @@ function abrirEpub(url) {
 
     rendition.display().catch(() => {
       mostrarMensaje(
-        "No se pudo abrir el EPUB. Comprueba que el archivo exista y sea válido."
+        "No se pudo abrir el EPUB. Comprueba que el archivo esté en GitHub."
       );
     });
+
   } catch (error) {
     mostrarMensaje("Ocurrió un error al abrir el libro EPUB.");
   }
 }
+
+/* LECTOR PDF */
 
 function abrirPdf(url) {
   document.getElementById("controlesEpub").style.display = "none";
 
   const visor = document.getElementById("visorPdf");
   visor.style.display = "block";
-
   visor.src = url;
 }
+
+/* MENSAJES */
 
 function mostrarMensaje(mensaje) {
   const elemento = document.getElementById("mensajeLector");
   elemento.textContent = mensaje;
   elemento.style.display = "block";
 }
+
+/* CAMBIAR PÁGINAS */
 
 function paginaAnterior() {
   if (rendition) rendition.prev();
@@ -721,33 +691,29 @@ function paginaSiguiente() {
   if (rendition) rendition.next();
 }
 
-function cerrarContenidoLector() {
-  const visorEpub = document.getElementById("visorEpub");
-  const visorPdf = document.getElementById("visorPdf");
+/* CERRAR LECTOR */
 
+function cerrarContenidoLector() {
   if (rendition) {
-    try {
-      rendition.destroy();
-    } catch (error) {}
+    try { rendition.destroy(); } catch (error) {}
   }
 
   if (bookInstance) {
-    try {
-      bookInstance.destroy();
-    } catch (error) {}
+    try { bookInstance.destroy(); } catch (error) {}
   }
 
   rendition = null;
   bookInstance = null;
 
-  visorEpub.innerHTML = "";
-  visorEpub.style.display = "none";
+  document.getElementById("visorEpub").innerHTML = "";
+  document.getElementById("visorEpub").style.display = "none";
 
-  visorPdf.src = "about:blank";
-  visorPdf.style.display = "none";
+  document.getElementById("visorPdf").src = "about:blank";
+  document.getElementById("visorPdf").style.display = "none";
 
   document.getElementById("mensajeLector").textContent = "";
   document.getElementById("mensajeLector").style.display = "none";
+
   document.getElementById("controlesEpub").style.display = "flex";
 }
 
@@ -755,6 +721,8 @@ function cerrarLector() {
   cerrarContenidoLector();
   document.getElementById("lector").style.display = "none";
 }
+
+/* FORMULARIO */
 
 function abrirFormulario() {
   document.getElementById("formulario").style.display = "block";
@@ -774,6 +742,8 @@ function cerrarFormulario() {
   });
 }
 
+/* AGREGAR LIBRO */
+
 function guardarLibro() {
   const titulo = document.getElementById("titulo").value.trim();
   const autor = document.getElementById("autor").value.trim();
@@ -788,7 +758,7 @@ function guardarLibro() {
     return;
   }
 
-  if (archivoUrl && archivoUrl.startsWith("javascript:")) {
+  if (/^(javascript:|data:)/i.test(archivoUrl)) {
     alert("La ruta del archivo no es válida.");
     return;
   }
@@ -808,7 +778,8 @@ function guardarLibro() {
     guardarDatos();
     mostrarLibros();
     cerrarFormulario();
-    alert("Ficha agregada en este navegador.");
+
+    alert("Libro agregado en este navegador.");
   };
 
   if (inputImagen.files && inputImagen.files[0]) {
@@ -828,6 +799,8 @@ function guardarLibro() {
   }
 }
 
+/* ELIMINAR FICHA */
+
 function eliminarLibro(id) {
   if (!confirm("¿Seguro que quieres eliminar esta ficha?")) return;
 
@@ -836,15 +809,16 @@ function eliminarLibro(id) {
   mostrarLibros();
 }
 
-// Cierra el lector con la tecla Escape.
 document.addEventListener("keydown", evento => {
   if (evento.key === "Escape") cerrarLector();
 });
 
+/* INICIAR BIBLIOTECA */
+
 cargarLibros();
 mostrarLibros();
+
 </script>
 
 </body>
-  </html>
-  
+        </html>
