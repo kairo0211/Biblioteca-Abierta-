@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca Abierta</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f1e8;
+  color: #24352d;
+}
+header {
+  background: #123b2c;
+  color: white;
+  padding: 25px 7%;
+}
+header h1 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 30px;
+}
+header p { color: #e4d4a5; }
+.hero {
+  background: linear-gradient(120deg, #174b36, #28694c);
+  color: white;
+  padding: 45px 7%;
+}
+.hero h2 {
+  font-family: Georgia, serif;
+  font-size: 32px;
+  margin: 0 0 10px;
+}
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 20px;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+input, select, textarea {
+  padding: 13px;
+  border: 1px solid #d4cbb8;
+  border-radius: 8px;
+  font-size: 15px;
+  background: white;
+}
+#busqueda { flex: 2; min-width: 200px; }
+#filtroCategoria { flex: 1; min-width: 150px; }
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 13px 18px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+}
+.add-button { background: #bd9847; color: #172c22; }
+#formulario {
+  display: none;
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px #00000012;
+}
+#formulario h3 { margin-top: 0; }
+#formulario input, #formulario select, #formulario textarea {
+  width: 100%;
+  margin: 7px 0 12px;
+}
+.save-button { background: #174b36; color: white; }
+.cancel-button { background: #e9e3d7; color: #333; margin-left: 7px; }
+.catalogo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 22px;
+}
+.libro {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 18px #00000012;
+  display: flex;
+  flex-direction: column;
+}
+.portada {
+  min-height: 280px;
+  padding: 25px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  font-family: Georgia, serif;
+  font-size: 23px;
+  background: linear-gradient(145deg, #174b36, #bd9847);
+  background-size: cover;
+  background-position: center;
+}
+.libro-info {
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.libro-info h3 {
+  font-family: Georgia, serif;
+  margin: 0 0 8px;
+}
+.autor { color: #8b7446; font-size: 14px; margin: 0 0 5px; }
+.cat-tag { font-size: 12px; color: #555; margin-bottom: 10px; font-weight: bold; }
+.descripcion { font-size: 14px; line-height: 1.5; flex-grow: 1; }
+.eliminar {
+  background: #f4e4e0;
+  color: #8d3025;
+  margin-top: 12px;
+  padding: 9px 12px;
+  font-size: 13px;
+  align-self: flex-start;
+}
+.aviso { font-size: 12px; color: #786f62; margin-top: 25px; }
+footer {
+  background: #123b2c;
+  color: #e8dfc8;
+  text-align: center;
+  padding: 25px;
+  margin-top: 45px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 Biblioteca Abierta</h1>
+  <p>Un mundo de historias por descubrir</p>
+</header>
+
+<section class="hero">
+  <h2>Tu próxima historia comienza aquí</h2>
+  <p>Explora, descubre y disfruta de la lectura.</p>
+</section>
+
+<main>
+  <div class="controls">
+    <input id="busqueda" type="search" placeholder="Buscar por título o autor..." oninput="mostrarLibros()">
+    <select id="filtroCategoria" onchange="mostrarLibros()">
+      <option value="">Todas las categorías</option>
+      <option value="Novela">Novela</option>
+      <option value="Romance">Romance</option>
+      <option value="Misterio">Misterio</option>
+      <option value="Historia">Historia</option>
+      <option value="Ciencia ficción">Ciencia ficción</option>
+      <option value="Infantil">Infantil</option>
+      <option value="Otros">Otros</option>
+    </select>
+    <button class="add-button" onclick="abrirFormulario()">+ Agregar libro</button>
+  </div>
+
+  <section id="formulario">
+    <h3>Agregar un nuevo libro</h3>
+
+    <label for="titulo">Título del libro</label>
+    <input id="titulo" placeholder="Escribe el título">
+
+    <label for="autor">Autor</label>
+    <input id="autor" placeholder="Nombre del autor">
+
+    <label for="categoria">Categoría</label>
+    <select id="categoria">
+      <option>Novela</option>
+      <option>Romance</option>
+      <option>Misterio</option>
+      <option>Historia</option>
+      <option>Ciencia ficción</option>
+      <option>Infantil</option>
+      <option>Otros</option>
+    </select>
+
+    <label for="imagen">Imagen de Portada (Opcional)</label>
+    <input id="imagen" type="file" accept="image/*">
+
+    <label for="descripcion">Descripción</label>
+    <textarea id="descripcion" rows="3" placeholder="Escribe una breve descripción"></textarea>
+
+    <button class="save-button" onclick="guardarLibro()">Guardar libro</button>
+    <button class="cancel-button" onclick="cerrarFormulario()">Cancelar</button>
+  </section>
+
+  <h2>Catálogo de libros</h2>
+  <div class="catalogo" id="catalogo"></div>
+
+  <p class="aviso">
+    Las fichas de prueba de obras protegidas son privadas y no están disponibles para distribución.
+  </p>
+</main>
+
+<footer>
+  Biblioteca Abierta · Un espacio para los lectores
+</footer>
+
+<script>
+const librosIniciales = [
+  {
+    id: 1,
+    titulo: "Una Navidad inolvidable",
+    autor: "Lisa Kleypas",
+    categoria: "Romance",
+    descripcion: "Ficha de prueba privada. No disponible para distribución.",
+    portadaUrl: ""
+  },
+  {
+    id: 2,
+    titulo: "Sucedió en otoño",
+    autor: "Lisa Kleypas",
+    categoria: "Romance",
+    descripcion: "Ficha de prueba privada. No disponible para distribución.",
+    portadaUrl: ""
+  },
+  {
+    id: 3,
+    titulo: "Orgullo y prejuicio",
+    autor: "Jane Austen",
+    categoria: "Romance",
+    descripcion: "Un clásico de la literatura sobre el amor, las apariencias y las relaciones sociales.",
+    portadaUrl: ""
+  }
+];
+
+let libros = [];
+
+try {
+  const guardados = localStorage.getItem("bibliotecaAbiertaLibros");
+  libros = guardados ? JSON.parse(guardados) : librosIniciales;
+  if (!Array.isArray(libros)) libros = librosIniciales;
+} catch (error) {
+  libros = librosIniciales;
+}
+
+function guardarDatos() {
+  localStorage.setItem("bibliotecaAbiertaLibros", JSON.stringify(libros));
+}
+
+function mostrarLibros() {
+  const catalogo = document.getElementById("catalogo");
+  const busqueda = document.getElementById("busqueda").value.toLowerCase();
+  const filtroCat = document.getElementById("filtroCategoria").value;
+
+  catalogo.innerHTML = "";
+
+  const encontrados = libros.filter(libro => {
+    const coincideTexto = libro.titulo.toLowerCase().includes(busqueda) || libro.autor.toLowerCase().includes(busqueda);
+    const coincideCategoria = filtroCat === "" || libro.categoria === filtroCat;
+    return coincideTexto && coincideCategoria;
+  });
+
+  if (encontrados.length === 0) {
+    catalogo.innerHTML = "<p>No se encontraron libros.</p>";
+    return;
+  }
+
+  encontrados.forEach(libro => {
+    const tarjeta = document.createElement("article");
+    tarjeta.className = "libro";
+
+    const portada = document.createElement("div");
+    portada.className = "portada";
+
+    if (libro.portadaUrl) {
+      portada.style.backgroundImage = `url('${libro.portadaUrl}')`;
+      portada.textContent = "";
+    } else {
+      portada.textContent = libro.titulo;
+    }
+
+    const info = document.createElement("div");
+    info.className = "libro-info";
+
+    const titulo = document.createElement("h3");
+    titulo.textContent = libro.titulo;
+
+    const autor = document.createElement("p");
+    autor.className = "autor";
+    autor.textContent = libro.autor;
+
+    const categoria = document.createElement("p");
+    categoria.className = "cat-tag";
+    categoria.textContent = "Categoría: " + libro.categoria;
+
+    const descripcion = document.createElement("p");
+    descripcion.className = "descripcion";
+    descripcion.textContent = libro.descripcion || "";
+
+    const eliminar = document.createElement("button");
+    eliminar.className = "eliminar";
+    eliminar.textContent = "Eliminar libro";
+    eliminar.onclick = () => eliminarLibro(libro.id);
+
+    info.append(titulo, autor, categoria, descripcion, eliminar);
+    tarjeta.append(portada, info);
+    catalogo.appendChild(tarjeta);
+  });
+}
+
+function abrirFormulario() {
+  document.getElementById("formulario").style.display = "block";
+}
+
+function cerrarFormulario() {
+  document.getElementById("formulario").style.display = "none";
+  document.getElementById("titulo").value = "";
+  document.getElementById("autor").value = "";
+  document.getElementById("descripcion").value = "";
+  document.getElementById("imagen").value = "";
+}
+
+function guardarLibro() {
+  const titulo = document.getElementById("titulo").value.trim();
+  const autor = document.getElementById("autor").value.trim();
+  const categoria = document.getElementById("categoria").value;
+  const descripcion = document.getElementById("descripcion").value.trim();
+  const inputImagen = document.getElementById("imagen");
+
+  if (!titulo || !autor) {
+    alert("Por favor, escribe al menos el título y el autor.");
+    return;
+  }
+
+  const procesarGuardado = (portadaUrl = "") => {
+    libros.push({
+      id: Date.now(),
+      titulo,
+      autor,
+      categoria,
+      descripcion,
+      portadaUrl
+    });
+
+    guardarDatos();
+    mostrarLibros();
+    cerrarFormulario();
+    alert("¡Libro agregado correctamente!");
+  };
+
+  if (inputImagen.files && inputImagen.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => procesarGuardado(e.target.result);
+    reader.readAsDataURL(inputImagen.files[0]);
+  } else {
+    procesarGuardado();
+  }
+}
+
+function eliminarLibro(id) {
+  if (!confirm("¿Seguro que quieres eliminar este libro?")) return;
+
+  libros = libros.filter(libro => libro.id !== id);
+  guardarDatos();
+  mostrarLibros();
+}
+
+guardarDatos();
+mostrarLibros();
+</script>
+</body>
+</html>
