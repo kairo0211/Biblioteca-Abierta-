@@ -7,7 +7,27 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f1e8;color:#24352d}header{background:#123b2c;color:#fff;padding:25px 7%}header h1{margin:0;font-family:Georgia,serif;font-size:30px}header p{color:#e4d4a5}.hero{background:linear-gradient(120deg,#174b36,#28694c);color:#fff;padding:45px 7%}.hero h2{font-family:Georgia,serif;font-size:32px;margin:0 0 10px}main{max-width:1100px;margin:auto;padding:30px 20px}.controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:25px}input,select,textarea{padding:13px;border:1px solid #d4cbb8;border-radius:8px;font-size:15px;background:#fff}#busqueda{flex:2;min-width:200px}#filtroCategoria{flex:1;min-width:150px}button{border:0;border-radius:8px;padding:13px 18px;cursor:pointer;font-size:15px;font-weight:bold}.add-button{background:#bd9847;color:#172c22}#formulario{display:none;background:#fff;padding:22px;border-radius:12px;margin-bottom:30px;box-shadow:0 4px 15px #00000012}#formulario h3{margin-top:0}#formulario input,#formulario select,#formulario textarea{width:100%;margin:7px 0 12px}.save-button{background:#174b36;color:#fff}.cancel-button{background:#e9e3d7;color:#333;margin-left:7px}.catalogo{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px}.libro{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 18px #00000012;display:flex;flex-direction:column}.portada{min-height:280px;padding:25px 18px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-family:Georgia,serif;font-size:23px;background:linear-gradient(145deg,#174b36,#bd9847);background-size:cover;background-position:center}.libro-info{padding:17px;display:flex;flex-direction:column;flex-grow:1}.libro-info h3{font-family:Georgia,serif;margin:0 0 8px}.autor{color:#8b7446;font-size:14px;margin:0 0 5px}.cat-tag{font-size:12px;color:#555;margin-bottom:10px;font-weight:bold}.descripcion{font-size:14px;line-height:1.5;flex-grow:1}.acciones{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.leer{background:#174b36;color:white}.descargar{background:#eee7d8;color:#26392f}.eliminar{background:#f4e4e0;color:#8d3025;padding:9px 12px;font-size:13px}.aviso{font-size:12px;color:#786f62;margin-top:25px}footer{background:#123b2c;color:#e8dfc8;text-align:center;padding:25px;margin-top:45px}.modal{display:none;position:fixed;inset:0;background:#000b;z-index:9999;padding:12px}.modal-contenido{background:#fdfbf6;max-width:1000px;width:100%;height:100%;margin:auto;border-radius:12px;display:flex;flex-direction:column;overflow:hidden}.barra-lector{background:#123b2c;color:#fff;padding:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.barra-lector strong{flex:1;min-width:120px}.barra-lector button{padding:9px 12px}.cerrar{background:#f4e4e0;color:#8d3025}.navegar{background:#bd9847;color:#172c22}.zona-lector{flex:1;min-height:0;overflow:auto;background:#fff;padding:8px}#visorEpub{height:100%;min-height:400px}#estadoLector{padding:8px;color:#555;font-size:13px}.sin-libros{background:#fff;padding:20px;border-radius:10px}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+<script>
+(function cargarEpubJS(){
+  const fuentes = [
+    "https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js",
+    "https://unpkg.com/epubjs@0.3.93/dist/epub.min.js"
+  ];
+  let indice = 0;
+  function intentar(){
+    if (typeof window.ePub === "function") return;
+    if (indice >= fuentes.length) return;
+    const s = document.createElement("script");
+    s.src = fuentes[indice++];
+    s.onload = () => {
+      if (typeof window.ePub !== "function") intentar();
+    };
+    s.onerror = intentar;
+    document.head.appendChild(s);
+  }
+  intentar();
+})();
+</script>
 </head>
 <body>
 <header><h1>📚 Biblioteca Abierta</h1><p>Un mundo de historias por descubrir</p></header>
@@ -87,15 +107,57 @@ function guardarLibro(){
 }
 function eliminarLibro(id){if(!confirm('¿Seguro que quieres eliminar este libro de este navegador?'))return;libros=libros.filter(l=>String(l.id)!==String(id));guardarDatos();mostrarLibros();}
 async function abrirLibro(libro){
- cerrarLector();libroActivo=libro;document.getElementById('tituloLector').textContent=libro.titulo||'Leyendo libro';document.getElementById('modalLector').style.display='block';document.getElementById('estadoLector').textContent='Cargando el archivo…';
- const url=urlArchivo(libro.archivoUrl||'');const formato=(libro.formato||extension(url)).toUpperCase();
+ cerrarLector();
+ libroActivo=libro;
+ const estado=document.getElementById('estadoLector');
+ const visor=document.getElementById('visorEpub');
+ document.getElementById('tituloLector').textContent=libro.titulo||'Leyendo libro';
+ document.getElementById('modalLector').style.display='block';
+ estado.textContent='Preparando el lector…';
+ const url=urlArchivo(libro.archivoUrl||'');
+ const formato=(libro.formato||extension(url)).toUpperCase();
+
  if(formato==='PDF'){
-  const frame=document.createElement('iframe');frame.src=url;frame.title=libro.titulo||'Libro PDF';frame.style.cssText='width:100%;height:100%;min-height:65vh;border:0';document.getElementById('visorEpub').appendChild(frame);document.getElementById('estadoLector').textContent='Si no aparece el PDF, comprueba que el archivo esté subido a GitHub con el mismo nombre.';return;
+  const frame=document.createElement('iframe');
+  frame.src=url;
+  frame.title=libro.titulo||'Libro PDF';
+  frame.style.cssText='width:100%;height:100%;min-height:65vh;border:0';
+  visor.appendChild(frame);
+  estado.textContent='Si el PDF no aparece, usa el botón Descargar.';
+  return;
  }
- if(formato!=='EPUB'){document.getElementById('estadoLector').textContent='Este registro no tiene un archivo EPUB o PDF asociado.';return;}
- if(typeof ePub!=='function'){document.getElementById('estadoLector').textContent='No se pudo cargar el lector EPUB. Comprueba tu conexión a Internet y vuelve a intentarlo.';return;}
- try{epubBook=ePub(url);epubRendition=epubBook.renderTo('visorEpub',{width:'100%',height:'100%',spread:'none'});await epubRendition.display();document.getElementById('estadoLector').textContent='';}
- catch(err){console.error(err);document.getElementById('estadoLector').textContent='No se pudo abrir el EPUB. Verifica que el archivo exista en GitHub, que el nombre coincida exactamente y que tengas conexión a Internet.';}
+ if(formato!=='EPUB'){
+  estado.textContent='Este registro no tiene un archivo EPUB o PDF asociado.';
+  return;
+ }
+
+ try{
+  // Espera brevemente a que termine de cargarse epub.js desde uno de los CDN.
+  for(let intento=0;intento<40 && typeof window.ePub!=='function';intento++){
+   await new Promise(resolve=>setTimeout(resolve,250));
+  }
+  if(typeof window.ePub!=='function'){
+   throw new Error('No se pudo descargar el lector EPUB. Comprueba tu conexión a Internet.');
+  }
+
+  estado.textContent='Abriendo el libro…';
+  epubBook=window.ePub(url);
+  epubBook.on('failed', err=>console.error('Error EPUB:',err));
+  await epubBook.ready;
+
+  epubRendition=epubBook.renderTo('visorEpub',{
+   width:'100%',
+   height:'100%',
+   spread:'none',
+   flow:'scrolled-doc'
+  });
+
+  await epubRendition.display();
+  estado.textContent='';
+ }catch(err){
+  console.error('No se pudo abrir el EPUB:',err);
+  estado.textContent='No se pudo mostrar el libro dentro de la página. Comprueba tu conexión y prueba de nuevo. También puedes usar Descargar para leerlo.';
+ }
 }
 function paginaAnterior(){if(epubRendition)epubRendition.prev();}
 function paginaSiguiente(){if(epubRendition)epubRendition.next();}
@@ -104,4 +166,5 @@ document.getElementById('modalLector').addEventListener('click',e=>{if(e.target.
 leerLibros();mostrarLibros();
 </script>
 </body>
-</html>
+ </html>
+ 
