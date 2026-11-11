@@ -1,170 +1,376 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Biblioteca Abierta</title>
+
+<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f1e8;color:#24352d}header{background:#123b2c;color:#fff;padding:25px 7%}header h1{margin:0;font-family:Georgia,serif;font-size:30px}header p{color:#e4d4a5}.hero{background:linear-gradient(120deg,#174b36,#28694c);color:#fff;padding:45px 7%}.hero h2{font-family:Georgia,serif;font-size:32px;margin:0 0 10px}main{max-width:1100px;margin:auto;padding:30px 20px}.controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:25px}input,select,textarea{padding:13px;border:1px solid #d4cbb8;border-radius:8px;font-size:15px;background:#fff}#busqueda{flex:2;min-width:200px}#filtroCategoria{flex:1;min-width:150px}button{border:0;border-radius:8px;padding:13px 18px;cursor:pointer;font-size:15px;font-weight:bold}.add-button{background:#bd9847;color:#172c22}#formulario{display:none;background:#fff;padding:22px;border-radius:12px;margin-bottom:30px;box-shadow:0 4px 15px #00000012}#formulario h3{margin-top:0}#formulario input,#formulario select,#formulario textarea{width:100%;margin:7px 0 12px}.save-button{background:#174b36;color:#fff}.cancel-button{background:#e9e3d7;color:#333;margin-left:7px}.catalogo{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px}.libro{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 18px #00000012;display:flex;flex-direction:column}.portada{min-height:280px;padding:25px 18px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-family:Georgia,serif;font-size:23px;background:linear-gradient(145deg,#174b36,#bd9847);background-size:cover;background-position:center}.libro-info{padding:17px;display:flex;flex-direction:column;flex-grow:1}.libro-info h3{font-family:Georgia,serif;margin:0 0 8px}.autor{color:#8b7446;font-size:14px;margin:0 0 5px}.cat-tag{font-size:12px;color:#555;margin-bottom:10px;font-weight:bold}.descripcion{font-size:14px;line-height:1.5;flex-grow:1}.acciones{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.leer{background:#174b36;color:white}.descargar{background:#eee7d8;color:#26392f}.eliminar{background:#f4e4e0;color:#8d3025;padding:9px 12px;font-size:13px}.aviso{font-size:12px;color:#786f62;margin-top:25px}footer{background:#123b2c;color:#e8dfc8;text-align:center;padding:25px;margin-top:45px}.modal{display:none;position:fixed;inset:0;background:#000b;z-index:9999;padding:12px}.modal-contenido{background:#fdfbf6;max-width:1000px;width:100%;height:100%;margin:auto;border-radius:12px;display:flex;flex-direction:column;overflow:hidden}.barra-lector{background:#123b2c;color:#fff;padding:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.barra-lector strong{flex:1;min-width:120px}.barra-lector button{padding:9px 12px}.cerrar{background:#f4e4e0;color:#8d3025}.navegar{background:#bd9847;color:#172c22}.zona-lector{flex:1;min-height:0;overflow:auto;background:#fff;padding:8px}#visorEpub{height:100%;min-height:400px}#estadoLector{padding:8px;color:#555;font-size:13px}.sin-libros{background:#fff;padding:20px;border-radius:10px}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f1e8;color:#24352d;font-family:Arial}
+header,footer{background:#123b2c;color:white;padding:22px;text-align:center}
+main{max-width:1100px;margin:auto;padding:20px}
+input,select,textarea,button{padding:12px;border-radius:7px;border:1px solid #ccc;font-size:15px}
+button{cursor:pointer;font-weight:bold}
+.catalogo{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
+.libro{background:white;border-radius:10px;overflow:hidden;padding-bottom:15px}
+.portada{height:240px;background:linear-gradient(140deg,#174b36,#bd9847);color:white;display:flex;align-items:center;justify-content:center;text-align:center;padding:15px;font-size:23px}
+.libro-info{padding:15px}
+.acciones{display:flex;gap:7px;flex-wrap:wrap}
+.leer{background:#174b36;color:white}
+.eliminar{background:#f4e4e0;color:#8d3025}
+.descargar{background:#eee7d8;color:#24352d;text-decoration:none;padding:12px;border-radius:7px;font-weight:bold}
+#formulario{display:none;background:white;padding:18px;margin:20px 0;border-radius:10px}
+#formulario input,#formulario select,#formulario textarea{width:100%;margin:6px 0 12px}
+#modalLector{display:none;position:fixed;inset:0;background:#000c;z-index:9999;padding:10px}
+.lector{background:white;width:100%;max-width:1000px;height:100%;margin:auto;display:flex;flex-direction:column;border-radius:10px;overflow:hidden}
+.barra{background:#123b2c;color:white;padding:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.barra strong{flex:1}
+.barra button{background:#bd9847;color:#172c22}
+#estado{padding:10px;background:#f5f1e8;font-size:14px}
+#visor{flex:1;min-height:0;width:100%;background:white;overflow:auto}
+#visor iframe{border:0}
+@media(max-width:550px){
+ #modalLector{padding:0}
+ .lector{border-radius:0}
+ .barra strong{flex-basis:100%}
+ .barra button{flex:1}
+}
 </style>
-<script>
-(function cargarEpubJS(){
-  const fuentes = [
-    "https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js",
-    "https://unpkg.com/epubjs@0.3.93/dist/epub.min.js"
-  ];
-  let indice = 0;
-  function intentar(){
-    if (typeof window.ePub === "function") return;
-    if (indice >= fuentes.length) return;
-    const s = document.createElement("script");
-    s.src = fuentes[indice++];
-    s.onload = () => {
-      if (typeof window.ePub !== "function") intentar();
-    };
-    s.onerror = intentar;
-    document.head.appendChild(s);
-  }
-  intentar();
-})();
-</script>
 </head>
+
 <body>
-<header><h1>📚 Biblioteca Abierta</h1><p>Un mundo de historias por descubrir</p></header>
-<section class="hero"><h2>Tu próxima historia comienza aquí</h2><p>Explora, descubre y disfruta de la lectura.</p></section>
+
+<header>
+<h1>📚 Biblioteca Abierta</h1>
+<p>Un mundo de historias por descubrir</p>
+</header>
+
 <main>
-<div class="controls">
-<input id="busqueda" type="search" placeholder="Buscar por título o autor..." oninput="mostrarLibros()">
-<select id="filtroCategoria" onchange="mostrarLibros()"><option value="">Todas las categorías</option><option>Novela</option><option>Romance</option><option>Misterio</option><option>Historia</option><option>Ciencia ficción</option><option>Infantil</option><option>Otros</option></select>
-<button class="add-button" onclick="abrirFormulario()">+ Agregar libro</button>
-</div>
+
+<h2>Buscar libros</h2>
+
+<input id="busqueda" placeholder="Buscar por título o autor..." oninput="mostrarLibros()">
+<select id="filtro" onchange="mostrarLibros()">
+<option value="">Todas las categorías</option>
+<option>Novela</option>
+<option>Romance</option>
+<option>Misterio</option>
+<option>Historia</option>
+<option>Otros</option>
+</select>
+
+<button onclick="abrirFormulario()">+ Agregar libro</button>
+
 <section id="formulario">
-<h3>Agregar un nuevo libro</h3>
-<label for="titulo">Título del libro</label><input id="titulo" placeholder="Escribe el título">
-<label for="autor">Autor</label><input id="autor" placeholder="Nombre del autor">
-<label for="categoria">Categoría</label><select id="categoria"><option>Novela</option><option>Romance</option><option>Misterio</option><option>Historia</option><option>Ciencia ficción</option><option>Infantil</option><option>Otros</option></select>
-<label for="archivoLibro">Archivo del libro (EPUB o PDF)</label><input id="archivoLibro" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf">
-<label for="imagen">Imagen de portada (opcional)</label><input id="imagen" type="file" accept="image/*">
-<label for="descripcion">Descripción</label><textarea id="descripcion" rows="3" placeholder="Escribe una breve descripción"></textarea>
-<button class="save-button" onclick="guardarLibro()">Guardar libro</button><button class="cancel-button" onclick="cerrarFormulario()">Cancelar</button>
+<h3>Agregar libro</h3>
+<input id="titulo" placeholder="Título">
+<input id="autor" placeholder="Autor">
+<select id="categoria">
+<option>Novela</option>
+<option>Romance</option>
+<option>Misterio</option>
+<option>Historia</option>
+<option>Otros</option>
+</select>
+<input id="archivo" type="file" accept=".epub,.pdf">
+<textarea id="descripcion" placeholder="Descripción"></textarea>
+<button onclick="guardarLibro()">Guardar</button>
+<button onclick="cerrarFormulario()">Cancelar</button>
 </section>
-<h2>Catálogo de libros</h2><div class="catalogo" id="catalogo"></div>
-<p class="aviso">Las modificaciones hechas desde este navegador se guardan únicamente en este dispositivo. Publica solo libros propios, de dominio público o con permiso de distribución.</p>
+
+<h2>Catálogo</h2>
+<div id="catalogo" class="catalogo"></div>
+
 </main>
-<footer>Biblioteca Abierta · Un espacio para los lectores</footer>
-<div class="modal" id="modalLector" role="dialog" aria-modal="true" aria-label="Lector de libros">
-<div class="modal-contenido"><div class="barra-lector"><strong id="tituloLector">Leyendo libro</strong><button class="navegar" onclick="paginaAnterior()">← Anterior</button><button class="navegar" onclick="paginaSiguiente()">Siguiente →</button><button class="cerrar" onclick="cerrarLector()">Cerrar ✕</button></div><div id="estadoLector">Cargando libro…</div><div class="zona-lector"><div id="visorEpub"></div></div></div>
+
+<footer>Biblioteca Abierta</footer>
+
+<div id="modalLector">
+<div class="lector">
+<div class="barra">
+<strong id="tituloLector">Leyendo libro</strong>
+<button onclick="anterior()">← Anterior</button>
+<button onclick="siguiente()">Siguiente →</button>
+<button onclick="cerrarLector()">Cerrar ✕</button>
 </div>
+<div id="estado">Preparando libro...</div>
+<div id="visor"></div>
+</div>
+</div>
+
 <script>
-const ARCHIVO_DIABLO = 'El_Diablo_Ilustrado_El_Diablo_Ilustrado_Ilustrado,_El_Diablo_.epub';
-const CLAVE_LIBROS = 'bibliotecaAbiertaLibros';
-const libroBase = {id:'diablo-ilustrado',titulo:'El Diablo Ilustrado',autor:'Anónimo / Por confirmar',categoria:'Otros',descripcion:'Libro en formato EPUB.',formato:'EPUB',archivoUrl:ARCHIVO_DIABLO,portadaUrl:''};
-let libros=[];let libroActivo=null;let epubBook=null;let epubRendition=null;
-function leerLibros(){
- try{
-  const guardados=localStorage.getItem(CLAVE_LIBROS);
-  if(guardados===null){libros=[{...libroBase}];guardarDatos();}
-  else{const datos=JSON.parse(guardados);libros=Array.isArray(datos)?datos:[];}
- }catch(e){libros=[{...libroBase}];guardarDatos();}
- // Corrige el enlace del EPUB en fichas antiguas sin volver a insertar libros eliminados.
- libros=libros.map((l,i)=>({...l,id:l.id??`libro-${i}-${Date.now()}`,formato:l.formato||extension(l.archivoUrl||'')}));
- const diablo=libros.find(l=>(l.titulo||'').toLowerCase()==='el diablo ilustrado');
- if(diablo && !diablo.archivoUrl){diablo.archivoUrl=ARCHIVO_DIABLO;diablo.formato='EPUB';}
- guardarDatos();
+const ARCHIVO_DIABLO =
+"El_Diablo_Ilustrado_El_Diablo_Ilustrado_Ilustrado,_El_Diablo_.epub";
+
+const CLAVE = "bibliotecaAbiertaLibros";
+
+let libros = [];
+let libroEPUB = null;
+let lectorEPUB = null;
+
+function cargarLibros(){
+  try{
+    const datos = localStorage.getItem(CLAVE);
+    libros = datos ? JSON.parse(datos) : [];
+    if(!Array.isArray(libros)) libros = [];
+  }catch(e){
+    libros = [];
+  }
+
+  if(!libros.some(l =>
+    (l.titulo || "").toLowerCase() === "el diablo ilustrado"
+  )){
+    libros.push({
+      id:"diablo-ilustrado",
+      titulo:"El Diablo Ilustrado",
+      autor:"Anónimo / Por confirmar",
+      categoria:"Otros",
+      descripcion:"Libro en formato EPUB",
+      formato:"EPUB",
+      archivoUrl:ARCHIVO_DIABLO
+    });
+  }
+
+  libros = libros.map((l,i)=>({
+    ...l,
+    id:l.id || ("libro-"+i+"-"+Date.now())
+  }));
+
+  guardarDatos();
 }
-function guardarDatos(){try{localStorage.setItem(CLAVE_LIBROS,JSON.stringify(libros));}catch(e){alert('No se pudieron guardar los cambios. Puede que el almacenamiento del navegador esté lleno.');}}
-function extension(ruta){const s=(ruta||'').toLowerCase().split('?')[0];return s.endsWith('.pdf')?'PDF':s.endsWith('.epub')?'EPUB':'';}
+
+function guardarDatos(){
+  localStorage.setItem(CLAVE,JSON.stringify(libros));
+}
+
+function rutaArchivo(nombre){
+  if(/^https?:\/\//i.test(nombre)) return nombre;
+
+  return new URL(
+    nombre.split("/").map(encodeURIComponent).join("/"),
+    document.baseURI
+  ).href;
+}
+
 function mostrarLibros(){
- const catalogo=document.getElementById('catalogo');const busqueda=document.getElementById('busqueda').value.trim().toLowerCase();const filtro=document.getElementById('filtroCategoria').value;
- catalogo.innerHTML='';
- const encontrados=libros.filter(l=>((l.titulo||'').toLowerCase().includes(busqueda)||(l.autor||'').toLowerCase().includes(busqueda))&&(!filtro||l.categoria===filtro));
- if(!encontrados.length){catalogo.innerHTML='<p class="sin-libros">No se encontraron libros.</p>';return;}
- encontrados.forEach(libro=>{
-  const tarjeta=document.createElement('article');tarjeta.className='libro';
-  const portada=document.createElement('div');portada.className='portada';
-  if(libro.portadaUrl){portada.style.backgroundImage=`url("${libro.portadaUrl}")`;portada.textContent='';}else portada.textContent=libro.titulo||'Libro';
-  const info=document.createElement('div');info.className='libro-info';
-  const titulo=document.createElement('h3');titulo.textContent=libro.titulo||'Sin título';
-  const autor=document.createElement('p');autor.className='autor';autor.textContent=libro.autor||'Autor desconocido';
-  const cat=document.createElement('p');cat.className='cat-tag';cat.textContent='Categoría: '+(libro.categoria||'Otros');
-  const desc=document.createElement('p');desc.className='descripcion';desc.textContent=libro.descripcion||'';
-  const acciones=document.createElement('div');acciones.className='acciones';
-  if(libro.archivoUrl){const leer=document.createElement('button');leer.className='leer';leer.textContent='Leer libro';leer.onclick=()=>abrirLibro(libro);acciones.appendChild(leer);const bajar=document.createElement('a');bajar.href=urlArchivo(libro.archivoUrl);bajar.download='';bajar.className='descargar';bajar.style.cssText='display:inline-block;text-decoration:none;border-radius:8px;padding:10px 12px;font-weight:bold;font-size:13px';bajar.textContent='Descargar';acciones.appendChild(bajar);}
-  const eliminar=document.createElement('button');eliminar.className='eliminar';eliminar.textContent='Eliminar libro';eliminar.onclick=()=>eliminarLibro(libro.id);acciones.appendChild(eliminar);
-  info.append(titulo,autor,cat,desc,acciones);tarjeta.append(portada,info);catalogo.appendChild(tarjeta);
- });
+  const zona = document.getElementById("catalogo");
+  const texto = document.getElementById("busqueda").value.toLowerCase();
+  const categoria = document.getElementById("filtro").value;
+
+  zona.innerHTML = "";
+
+  const encontrados = libros.filter(l =>
+    ((l.titulo||"").toLowerCase().includes(texto) ||
+     (l.autor||"").toLowerCase().includes(texto)) &&
+    (!categoria || l.categoria === categoria)
+  );
+
+  if(!encontrados.length){
+    zona.textContent = "No hay libros disponibles.";
+    return;
+  }
+
+  encontrados.forEach(l=>{
+    const tarjeta = document.createElement("article");
+    tarjeta.className = "libro";
+
+    const portada = document.createElement("div");
+    portada.className = "portada";
+    portada.textContent = l.titulo;
+
+    const info = document.createElement("div");
+    info.className = "libro-info";
+
+    const autor = document.createElement("p");
+    autor.textContent = l.autor || "";
+
+    const descripcion = document.createElement("p");
+    descripcion.textContent = l.descripcion || "";
+
+    const acciones = document.createElement("div");
+    acciones.className = "acciones";
+
+    const leer = document.createElement("button");
+    leer.className = "leer";
+    leer.textContent = "Leer libro";
+    leer.onclick = ()=>abrirLibro(l);
+
+    const eliminar = document.createElement("button");
+    eliminar.className = "eliminar";
+    eliminar.textContent = "Eliminar";
+    eliminar.onclick = ()=>eliminarLibro(l.id);
+
+    acciones.append(leer,eliminar);
+    info.append(autor,descripcion,acciones);
+    tarjeta.append(portada,info);
+    zona.appendChild(tarjeta);
+  });
 }
-function urlArchivo(ruta){if(/^https?:\/\//i.test(ruta))return ruta;return './'+ruta.split('/').map(p=>encodeURIComponent(p)).join('/');}
-function abrirFormulario(){document.getElementById('formulario').style.display='block';}
-function cerrarFormulario(){document.getElementById('formulario').style.display='none';['titulo','autor','descripcion','archivoLibro','imagen'].forEach(id=>document.getElementById(id).value='');}
+
+function abrirFormulario(){
+  document.getElementById("formulario").style.display = "block";
+}
+
+function cerrarFormulario(){
+  document.getElementById("formulario").style.display = "none";
+}
+
 function guardarLibro(){
- const titulo=document.getElementById('titulo').value.trim(),autor=document.getElementById('autor').value.trim(),categoria=document.getElementById('categoria').value,descripcion=document.getElementById('descripcion').value.trim(),f=document.getElementById('archivoLibro').files[0],img=document.getElementById('imagen').files[0];
- if(!titulo||!autor){alert('Escribe al menos el título y el autor.');return;}
- if(!f){alert('Selecciona el archivo EPUB o PDF del libro.');return;}
- const ext=f.name.toLowerCase().endsWith('.epub')?'EPUB':f.name.toLowerCase().endsWith('.pdf')?'PDF':'';if(!ext){alert('El archivo debe ser EPUB o PDF.');return;}
- const guardarConPortada=(portadaUrl='')=>{libros.push({id:'libro-'+Date.now()+'-'+Math.random().toString(36).slice(2),titulo,autor,categoria,descripcion,formato:ext,archivoUrl:f.name,portadaUrl});guardarDatos();mostrarLibros();cerrarFormulario();alert('Ficha agregada. Recuerda subir también el archivo '+f.name+' a la raíz del repositorio de GitHub para que los visitantes puedan abrirlo.');};
- if(img){const r=new FileReader();r.onload=e=>guardarConPortada(e.target.result);r.onerror=()=>alert('No se pudo leer la portada.');r.readAsDataURL(img);}else guardarConPortada();
-}
-function eliminarLibro(id){if(!confirm('¿Seguro que quieres eliminar este libro de este navegador?'))return;libros=libros.filter(l=>String(l.id)!==String(id));guardarDatos();mostrarLibros();}
-async function abrirLibro(libro){
- cerrarLector();
- libroActivo=libro;
- const estado=document.getElementById('estadoLector');
- const visor=document.getElementById('visorEpub');
- document.getElementById('tituloLector').textContent=libro.titulo||'Leyendo libro';
- document.getElementById('modalLector').style.display='block';
- estado.textContent='Preparando el lector…';
- const url=urlArchivo(libro.archivoUrl||'');
- const formato=(libro.formato||extension(url)).toUpperCase();
+  const titulo = document.getElementById("titulo").value.trim();
+  const autor = document.getElementById("autor").value.trim();
+  const archivo = document.getElementById("archivo").files[0];
 
- if(formato==='PDF'){
-  const frame=document.createElement('iframe');
-  frame.src=url;
-  frame.title=libro.titulo||'Libro PDF';
-  frame.style.cssText='width:100%;height:100%;min-height:65vh;border:0';
-  visor.appendChild(frame);
-  estado.textContent='Si el PDF no aparece, usa el botón Descargar.';
-  return;
- }
- if(formato!=='EPUB'){
-  estado.textContent='Este registro no tiene un archivo EPUB o PDF asociado.';
-  return;
- }
-
- try{
-  // Espera brevemente a que termine de cargarse epub.js desde uno de los CDN.
-  for(let intento=0;intento<40 && typeof window.ePub!=='function';intento++){
-   await new Promise(resolve=>setTimeout(resolve,250));
-  }
-  if(typeof window.ePub!=='function'){
-   throw new Error('No se pudo descargar el lector EPUB. Comprueba tu conexión a Internet.');
+  if(!titulo || !autor || !archivo){
+    alert("Completa título, autor y archivo.");
+    return;
   }
 
-  estado.textContent='Abriendo el libro…';
-  epubBook=window.ePub(url);
-  epubBook.on('failed', err=>console.error('Error EPUB:',err));
-  await epubBook.ready;
+  const extension = archivo.name.toLowerCase().endsWith(".pdf")
+    ? "PDF" : archivo.name.toLowerCase().endsWith(".epub")
+    ? "EPUB" : "";
 
-  epubRendition=epubBook.renderTo('visorEpub',{
-   width:'100%',
-   height:'100%',
-   spread:'none',
-   flow:'scrolled-doc'
+  if(!extension){
+    alert("El archivo debe ser EPUB o PDF.");
+    return;
+  }
+
+  libros.push({
+    id:"libro-"+Date.now(),
+    titulo,
+    autor,
+    categoria:document.getElementById("categoria").value,
+    descripcion:document.getElementById("descripcion").value,
+    formato:extension,
+    archivoUrl:archivo.name
   });
 
-  await epubRendition.display();
-  estado.textContent='';
- }catch(err){
-  console.error('No se pudo abrir el EPUB:',err);
-  estado.textContent='No se pudo mostrar el libro dentro de la página. Comprueba tu conexión y prueba de nuevo. También puedes usar Descargar para leerlo.';
- }
+  guardarDatos();
+  mostrarLibros();
+  cerrarFormulario();
+
+  alert("Ficha guardada. Sube también el archivo a GitHub.");
 }
-function paginaAnterior(){if(epubRendition)epubRendition.prev();}
-function paginaSiguiente(){if(epubRendition)epubRendition.next();}
-function cerrarLector(){if(epubBook){try{epubBook.destroy();}catch(e){}}epubBook=null;epubRendition=null;libroActivo=null;document.getElementById('visorEpub').innerHTML='';document.getElementById('modalLector').style.display='none';document.getElementById('estadoLector').textContent='';}
-document.getElementById('modalLector').addEventListener('click',e=>{if(e.target.id==='modalLector')cerrarLector();});
-leerLibros();mostrarLibros();
+
+function eliminarLibro(id){
+  const libro = libros.find(l=>String(l.id)===String(id));
+  if(!libro) return;
+
+  if(!confirm("¿Eliminar "+libro.titulo+"?")) return;
+
+  libros = libros.filter(l=>String(l.id)!==String(id));
+  guardarDatos();
+  mostrarLibros();
+}
+
+/* LECTOR DE LIBROS */
+
+async function abrirLibro(libro){
+
+  cerrarLector();
+
+  const modal = document.getElementById("modalLector");
+  const visor = document.getElementById("visor");
+  const estado = document.getElementById("estado");
+
+  document.getElementById("tituloLector").textContent = libro.titulo;
+  modal.style.display = "block";
+  estado.textContent = "Descargando el libro para preparar sus páginas...";
+
+  const url = rutaArchivo(libro.archivoUrl);
+  const formato = (libro.formato || "").toUpperCase();
+
+  try{
+
+    if(formato === "PDF"){
+      const iframe = document.createElement("iframe");
+      iframe.src = url;
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      visor.appendChild(iframe);
+      estado.textContent = "";
+      return;
+    }
+
+    if(typeof ePub !== "function"){
+      throw new Error("No se pudo cargar el motor EPUB. Comprueba Internet.");
+    }
+
+    // DESCARGAR EL ARCHIVO COMO DATOS BINARIOS
+    const respuesta = await fetch(url);
+
+    if(!respuesta.ok){
+      throw new Error("No se encontró el archivo EPUB. Código: "+respuesta.status);
+    }
+
+    const datos = await respuesta.arrayBuffer();
+
+    if(datos.byteLength < 100){
+      throw new Error("El archivo EPUB está vacío o incompleto.");
+    }
+
+    estado.textContent = "Cargando las páginas del libro...";
+
+    // ENTREGAR LOS DATOS BINARIOS A EPUB.JS
+    libroEPUB = ePub(datos);
+
+    await libroEPUB.ready;
+
+    // CREAR EL VISOR DENTRO DE LA PÁGINA
+    lectorEPUB = libroEPUB.renderTo(visor,{
+      width:"100%",
+      height:"100%",
+      spread:"none",
+      flow:"scrolled-doc"
+    });
+
+    // MOSTRAR LA PRIMERA PÁGINA
+    await lectorEPUB.display();
+
+    estado.textContent = "";
+
+  }catch(error){
+
+    console.error(error);
+
+    estado.textContent =
+      "Error al abrir el libro: "+error.message;
+
+  }
+}
+
+function anterior(){
+  if(lectorEPUB) lectorEPUB.prev();
+}
+
+function siguiente(){
+  if(lectorEPUB) lectorEPUB.next();
+}
+
+function cerrarLector(){
+
+  if(lectorEPUB){
+    try{lectorEPUB.destroy();}catch(e){}
+  }
+
+  if(libroEPUB){
+    try{libroEPUB.destroy();}catch(e){}
+  }
+
+  lectorEPUB = null;
+  libroEPUB = null;
+
+  document.getElementById("visor").innerHTML = "";
+  document.getElementById("modalLector").style.display = "none";
+  document.getElementById("estado").textContent = "";
+}
+
+cargarLibros();
+mostrarLibros();
+
 </script>
 </body>
- </html>
- 
+</html>
