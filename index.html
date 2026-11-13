@@ -6,14 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Biblioteca Abierta</title>
 
-<!-- IMPORTANTE: cargar JSZip antes de EPUB.js -->
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
-
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -72,9 +66,7 @@ button {
   font-size: 23px;
 }
 
-.libro-info {
-  padding: 15px;
-}
+.libro-info { padding: 15px; }
 
 .acciones {
   display: flex;
@@ -139,9 +131,7 @@ button {
   flex-wrap: wrap;
 }
 
-.barra strong {
-  flex: 1;
-}
+.barra strong { flex: 1; }
 
 .barra button {
   background: #bd9847;
@@ -171,22 +161,11 @@ button {
   height: 100%;
 }
 
-@media(max-width: 550px) {
-  #modalLector {
-    padding: 0;
-  }
-
-  .lector {
-    border-radius: 0;
-  }
-
-  .barra strong {
-    flex-basis: 100%;
-  }
-
-  .barra button {
-    flex: 1;
-  }
+@media(max-width:550px) {
+  #modalLector { padding: 0; }
+  .lector { border-radius: 0; }
+  .barra strong { flex-basis: 100%; }
+  .barra button { flex: 1; }
 }
 </style>
 </head>
@@ -202,11 +181,9 @@ button {
 
   <h2>Buscar libros</h2>
 
-  <input
-    id="busqueda"
+  <input id="busqueda"
     placeholder="Buscar por título o autor..."
-    oninput="mostrarLibros()"
-  >
+    oninput="mostrarLibros()">
 
   <select id="filtro" onchange="mostrarLibros()">
     <option value="">Todas las categorías</option>
@@ -242,38 +219,33 @@ button {
   </section>
 
   <h2>Catálogo</h2>
-
   <div id="catalogo" class="catalogo"></div>
 
 </main>
 
-<footer>
-  Biblioteca Abierta
-</footer>
+<footer>Biblioteca Abierta</footer>
 
 <div id="modalLector">
-
   <div class="lector">
 
     <div class="barra">
       <strong id="tituloLector">Leyendo libro</strong>
-
       <button onclick="anterior()">← Anterior</button>
       <button onclick="siguiente()">Siguiente →</button>
       <button onclick="cerrarLector()">Cerrar ✕</button>
     </div>
 
     <div id="estado">Preparando libro...</div>
-
     <div id="visor"></div>
 
   </div>
-
 </div>
 
 <script>
 
-/* CONFIGURACIÓN */
+/* =================================
+   CONFIGURACIÓN
+================================= */
 
 const ARCHIVO_DIABLO =
 "El_Diablo_Ilustrado_El_Diablo_Ilustrado_Ilustrado,_El_Diablo_.epub";
@@ -284,21 +256,171 @@ let libros = [];
 let libroEPUB = null;
 let lectorEPUB = null;
 let solicitudActual = 0;
+let dependencias = null;
 
 
-/* CARGAR LIBROS */
+/* =================================
+   CARGA SEGURA DE BIBLIOTECAS
+================================= */
+
+function cargarScript(url, comprobar) {
+
+  return new Promise((resolve, reject) => {
+
+    const script = document.createElement("script");
+
+    script.src = url;
+    script.async = true;
+
+    const tiempo = setTimeout(() => {
+      script.remove();
+      reject(new Error("Tiempo agotado cargando " + url));
+    }, 20000);
+
+    script.onload = () => {
+
+      clearTimeout(tiempo);
+
+      if (comprobar()) {
+        resolve(true);
+      } else {
+        script.remove();
+        reject(new Error("La biblioteca no quedó disponible."));
+      }
+
+    };
+
+    script.onerror = () => {
+      clearTimeout(tiempo);
+      script.remove();
+      reject(new Error("No se pudo descargar " + url));
+    };
+
+    document.head.appendChild(script);
+
+  });
+
+}
+
+
+async function cargarDesdeServidores(urls, comprobar, nombre) {
+
+  let ultimoError = null;
+
+  for (const url of urls) {
+
+    try {
+
+      await cargarScript(url, comprobar);
+
+      if (comprobar()) {
+        return true;
+      }
+
+    } catch(error) {
+
+      ultimoError = error;
+      console.warn(nombre, url, error);
+
+    }
+
+  }
+
+  throw new Error(
+    "No se pudo cargar " + nombre +
+    " desde ninguno de los servidores. Comprueba Internet o VPN."
+  );
+
+}
+
+
+async function cargarDependencias() {
+
+  if (dependencias) {
+    return dependencias;
+  }
+
+  dependencias = (async () => {
+
+    // Primero cargar JSZip.
+
+    if (!window.JSZip) {
+
+      await cargarDesdeServidores(
+
+        [
+          "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+          "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js",
+          "https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"
+        ],
+
+        () => typeof window.JSZip === "function",
+
+        "JSZip"
+
+      );
+
+    }
+
+    if (typeof window.JSZip !== "function") {
+      throw new Error("JSZip no está disponible.");
+    }
+
+    // Asegurar que esté disponible como variable global.
+
+    window.JSZip = window.JSZip;
+
+    // Después cargar EPUB.js.
+
+    if (typeof window.ePub !== "function") {
+
+      await cargarDesdeServidores(
+
+        [
+          "https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js",
+          "https://unpkg.com/epubjs@0.3.93/dist/epub.min.js"
+        ],
+
+        () => typeof window.ePub === "function",
+
+        "EPUB.js"
+
+      );
+
+    }
+
+    if (typeof window.ePub !== "function") {
+      throw new Error("EPUB.js no está disponible.");
+    }
+
+    return true;
+
+  })();
+
+  try {
+    return await dependencias;
+  } catch(error) {
+    dependencias = null;
+    throw error;
+  }
+
+}
+
+
+/* =================================
+   DATOS Y CATÁLOGO
+================================= */
 
 function cargarLibros() {
 
   try {
+
     const datos = localStorage.getItem(CLAVE);
     libros = datos ? JSON.parse(datos) : [];
 
-    if (!Array.isArray(libros)) {
-      libros = [];
-    }
+    if (!Array.isArray(libros)) libros = [];
 
-  } catch(e) {
+  } catch(error) {
     libros = [];
   }
 
@@ -315,6 +437,7 @@ function cargarLibros() {
       formato: "EPUB",
       archivoUrl: ARCHIVO_DIABLO
     });
+
   }
 
   libros = libros.map((l, i) => ({
@@ -323,23 +446,20 @@ function cargarLibros() {
   }));
 
   guardarDatos();
+
 }
 
-
-/* GUARDAR DATOS */
 
 function guardarDatos() {
 
   try {
     localStorage.setItem(CLAVE, JSON.stringify(libros));
-  } catch(e) {
+  } catch(error) {
     alert("No se pudieron guardar los datos en este dispositivo.");
   }
 
 }
 
-
-/* DIRECCIÓN DEL ARCHIVO */
 
 function rutaArchivo(nombre) {
 
@@ -351,17 +471,15 @@ function rutaArchivo(nombre) {
     nombre.split("/").map(encodeURIComponent).join("/"),
     document.baseURI
   ).href;
+
 }
 
-
-/* MOSTRAR CATÁLOGO */
 
 function mostrarLibros() {
 
   const zona = document.getElementById("catalogo");
 
-  const texto = document
-    .getElementById("busqueda")
+  const texto = document.getElementById("busqueda")
     .value.toLowerCase();
 
   const categoria = document.getElementById("filtro").value;
@@ -424,7 +542,9 @@ function mostrarLibros() {
 }
 
 
-/* FORMULARIO */
+/* =================================
+   FORMULARIO
+================================= */
 
 function abrirFormulario() {
   document.getElementById("formulario").style.display = "block";
@@ -434,8 +554,6 @@ function cerrarFormulario() {
   document.getElementById("formulario").style.display = "none";
 }
 
-
-/* GUARDAR LIBRO */
 
 function guardarLibro() {
 
@@ -460,13 +578,19 @@ function guardarLibro() {
   }
 
   libros.push({
+
     id: "libro-" + Date.now(),
     titulo,
     autor,
+
     categoria: document.getElementById("categoria").value,
+
     descripcion: document.getElementById("descripcion").value,
+
     formato: extension,
+
     archivoUrl: archivo.name
+
   });
 
   guardarDatos();
@@ -485,8 +609,6 @@ function guardarLibro() {
 }
 
 
-/* ELIMINAR LIBRO */
-
 function eliminarLibro(id) {
 
   const libro = libros.find(l => String(l.id) === String(id));
@@ -503,7 +625,9 @@ function eliminarLibro(id) {
 }
 
 
-/* ESPERAR AL VISOR */
+/* =================================
+   LECTOR EPUB
+================================= */
 
 function esperarVisor() {
 
@@ -516,20 +640,14 @@ function esperarVisor() {
 }
 
 
-/* LIMPIAR LIBRO ANTERIOR */
-
 function limpiarLibroAnterior() {
 
   if (lectorEPUB) {
-    try {
-      lectorEPUB.destroy();
-    } catch(e) {}
+    try { lectorEPUB.destroy(); } catch(error) {}
   }
 
   if (libroEPUB) {
-    try {
-      libroEPUB.destroy();
-    } catch(e) {}
+    try { libroEPUB.destroy(); } catch(error) {}
   }
 
   lectorEPUB = null;
@@ -539,8 +657,6 @@ function limpiarLibroAnterior() {
 
 }
 
-
-/* ABRIR LIBRO */
 
 async function abrirLibro(libro) {
 
@@ -561,14 +677,14 @@ async function abrirLibro(libro) {
 
   try {
 
-    const url = rutaArchivo(libro.archivoUrl);
     const formato = (libro.formato || "").toUpperCase();
+    const url = rutaArchivo(libro.archivoUrl);
 
-    /* PDF */
+    // PDF
 
     if (formato === "PDF") {
 
-      estado.textContent = "Abriendo el PDF...";
+      estado.textContent = "Abriendo PDF...";
 
       const iframe = document.createElement("iframe");
       iframe.src = url;
@@ -578,29 +694,18 @@ async function abrirLibro(libro) {
       estado.style.display = "none";
 
       return;
+
     }
 
-    /* COMPROBAR JSZIP */
+    // ESPERAR A QUE JSZIP Y EPUB.JS ESTÉN DISPONIBLES
 
-    if (typeof JSZip === "undefined") {
-      throw new Error(
-        "JSZip no se cargó. Comprueba la conexión a Internet."
-      );
-    }
+    estado.textContent = "Cargando el motor de lectura...";
 
-    /* COMPROBAR EPUB.JS */
-
-    if (typeof ePub !== "function") {
-      throw new Error(
-        "EPUB.js no se pudo cargar. Comprueba la conexión a Internet."
-      );
-    }
-
-    await esperarVisor();
+    await cargarDependencias();
 
     if (miSolicitud !== solicitudActual) return;
 
-    /* DESCARGAR EPUB */
+    // DESCARGAR LIBRO
 
     estado.textContent = "Descargando el archivo del libro...";
 
@@ -634,9 +739,9 @@ async function abrirLibro(libro) {
       );
     }
 
-    /* LEER ARCHIVO */
+    // LEER ARCHIVO
 
-    estado.textContent = "Preparando las páginas del libro...";
+    estado.textContent = "Preparando las páginas...";
 
     const datos = await respuesta.arrayBuffer();
 
@@ -646,21 +751,19 @@ async function abrirLibro(libro) {
       throw new Error("El archivo EPUB está vacío o incompleto.");
     }
 
-    /* COMPROBAR ARCHIVO ZIP */
+    // COMPROBAR QUE ES UN ZIP
 
     const firma = new Uint8Array(datos, 0, 4);
 
     if (firma[0] !== 0x50 || firma[1] !== 0x4b) {
-      throw new Error(
-        "El archivo recibido no parece ser un EPUB válido."
-      );
+      throw new Error("El archivo descargado no es un EPUB válido.");
     }
 
-    /* PREPARAR LIBRO */
+    // CREAR LIBRO
 
-    estado.textContent = "Abriendo el libro y preparando sus páginas...";
+    estado.textContent = "Descomprimiendo el libro...";
 
-    libroEPUB = ePub(datos);
+    libroEPUB = window.ePub(datos);
 
     await libroEPUB.ready;
 
@@ -671,12 +774,12 @@ async function abrirLibro(libro) {
     if (miSolicitud !== solicitudActual) return;
 
     if (visor.clientHeight < 50) {
-      throw new Error(
-        "El espacio del lector no tiene altura suficiente."
-      );
+      throw new Error("El visor no tiene espacio suficiente.");
     }
 
-    /* CREAR VISOR */
+    // MOSTRAR PÁGINAS
+
+    estado.textContent = "Cargando la primera página...";
 
     lectorEPUB = libroEPUB.renderTo(visor, {
       width: "100%",
@@ -684,10 +787,6 @@ async function abrirLibro(libro) {
       spread: "none",
       flow: "paginated"
     });
-
-    /* MOSTRAR PRIMERA PÁGINA */
-
-    estado.textContent = "Cargando la primera página...";
 
     await lectorEPUB.display();
 
@@ -699,19 +798,19 @@ async function abrirLibro(libro) {
 
     if (miSolicitud !== solicitudActual) return;
 
-    console.error("Error al abrir el libro:", error);
+    console.error("Error del lector:", error);
 
     estado.style.display = "block";
 
     if (error.name === "AbortError") {
 
       estado.textContent =
-        "La descarga tardó demasiado. Comprueba tu conexión e inténtalo otra vez.";
+        "La descarga tardó demasiado. Comprueba Internet e inténtalo otra vez.";
 
     } else {
 
       estado.textContent =
-        "No se pudo abrir el libro: " + error.message;
+        "Error al abrir el libro: " + error.message;
 
     }
 
@@ -720,25 +819,27 @@ async function abrirLibro(libro) {
 }
 
 
-/* ANTERIOR */
+/* =================================
+   CONTROLES DEL LECTOR
+================================= */
 
 function anterior() {
+
   if (lectorEPUB) {
     lectorEPUB.prev();
   }
+
 }
 
 
-/* SIGUIENTE */
-
 function siguiente() {
+
   if (lectorEPUB) {
     lectorEPUB.next();
   }
+
 }
 
-
-/* CERRAR LECTOR */
 
 function cerrarLector() {
 
@@ -754,7 +855,9 @@ function cerrarLector() {
 }
 
 
-/* INICIAR BIBLIOTECA */
+/* =================================
+   INICIAR BIBLIOTECA
+================================= */
 
 cargarLibros();
 mostrarLibros();
@@ -762,4 +865,5 @@ mostrarLibros();
 </script>
 
 </body>
-</html>
+                                                 </html>
+  
