@@ -233,18 +233,7 @@ function guardarDatos(){
   }
 }
 
-function guardarLibro(){
-  if(!administracionAbierta) return;
 
-  const titulo = document.getElementById("titulo").value.trim();
-  const autor = document.getElementById("autor").value.trim();
-  const archivo = document.getElementById("archivo").value.trim();
-  const descripcion = document.getElementById("descripcion").value.trim();
-
-  if(!titulo || !autor || !archivo){
-    alert("Completa el título, el autor y el nombre del archivo.");
-    return;
-  }
 
   const extension = archivo.toLowerCase().split("?")[0].endsWith(".pdf")
     ? "PDF"
